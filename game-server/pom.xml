@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+  	<groupId>com.lebaoxun</groupId>
+  	<artifactId>service-parent</artifactId>
+  	<version>1.0.0-RELEASE</version>
+  </parent>
+  
+  <artifactId>game-server</artifactId>
+  <version>1.0.-RELEASE</version>
+  <packaging>jar</packaging>
+
+  <name>game-server</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+  	<dependency>  
+        <groupId>org.springframework.boot</groupId>  
+        <artifactId>spring-boot-starter-web</artifactId>  
+        <!-- 排除内置容器，排除内置容器导出成war包可以让外部容器运行spring-boot项目-->  
+        <exclusions>  
+            <exclusion>  
+                <groupId>org.springframework.boot</groupId>  
+                <artifactId>spring-boot-starter-tomcat</artifactId>  
+            </exclusion>  
+        </exclusions>  
+    </dependency>
+    
+	<dependency>
+		<groupId>com.lebaoxun</groupId>
+		<artifactId>netty-mvc-core</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+  </dependencies>
+  
+  <build>
+    <finalName>game-server</finalName>
+  </build>
+</project>

@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: guess-caipiao-service
+  session:
+    store-type: none
+  cloud:
+    config:
+      name: guess
+      profile: test
+      username: guess
+      password: 123123
+      uri: http://47.95.7.11:7369/
+      label: master
+
+app:
+  server:
+    port: 8081
+    theads: 4
+  channel:
+    readtimeout: 3600
