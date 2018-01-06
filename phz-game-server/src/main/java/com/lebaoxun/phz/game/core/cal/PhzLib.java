@@ -57,12 +57,12 @@ public class PhzLib {
 		return false;
 	}
 	
-	public static boolean check_hu(char[] cards, int cur_card){
+	public static boolean check_hu(char[] cards, int cur_card,int minHuxi){
 		char[] temp = new char[20];
 		System.arraycopy(cards, 0, temp, 0, 20);
 		++temp[cur_card];
 		int huxi = get_huxi(temp);
-		if (huxi > -1) {
+		if (huxi > -1 && huxi > minHuxi) {
 			return true;
 		}
 		return false;

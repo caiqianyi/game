@@ -16,6 +16,7 @@ import com.lebaoxun.phz.game.core.config.PhzPaixing;
 
 /**
  * 0=禁止操作，1=出牌，2=摸牌 >2 提示 3=胡，4=跑，5=偎，6=碰，7=吃
+ * 1=自摸，提 2=放炮，跑
  * @author DELL
  *
  */
@@ -42,20 +43,21 @@ public class PhzGameRound {
 	 * 判断谁出牌
 	 * @return
 	 */
-	public GameRoomMember checkWhoPutOffCard(){
-		Collection<GameRoomMember> members = gameRoomRound.getMembers();
-		GameRoomMember banker = null;
-		for(GameRoomMember member: members){
+	public int checkWhoPutOffCard(){
+		List<GameRoomMember> members = gameRoomRound.getMembers();
+		int banker_i = -1;
+		for(int i=0;i<members.size();i++){
+			GameRoomMember member = members.get(i);
 			if(member.getFlag().equals(1)){
-				banker = member;
+				banker_i = i;
 			}
 			if(member.getHandleFlag() > 0){
-				return member;
+				return i;
 			}
 		}
-		if(banker != null){
-			banker.setHandleFlag(1);
-			return banker;
+		if(banker_i > -1){
+			members.get(banker_i).setHandleFlag(1);
+			return banker_i;
 		}
 		throw new I18nMessageException("-1","游戏出错了，没有出牌玩家");
 	}
@@ -130,9 +132,39 @@ public class PhzGameRound {
 	/**
 	 * 摸牌
 	 */
-	public String pickCard(int userId){
-		
-		
+	public String pickCard(){
+		int idex = checkWhoPutOffCard();
+		List<GameRoomMember> members = gameRoomRound.getMembers();
+		GameRoomMember self = members.get(idex);
+		int handleFlag = self.getHandleFlag();
+		if(handleFlag == 2){
+			Integer cur_card = this.gameRoomRound.getListCard().get(putCardOffset);
+			char cards[] = self.getCards();
+			
+			if(PhzLib.check_hu(cards, cur_card, minHuxi)) return idex+"_3_1";//自摸
+			
+			String otherHandleFlagStr = checkOtherCard(idex, cur_card);
+			String ohs[] = otherHandleFlagStr.split("\\_");
+			int i = Integer.parseInt(ohs[0]), otherHandleFlag = Integer.parseInt(ohs[1]);
+			
+			if(PhzLib.check_gang(cards, cur_card)) return idex+"_4_1";//提，不同玩法，摸牌提，他人不能胡
+			
+			if(otherHandleFlag == 3) return otherHandleFlagStr+"_3";//别人胡了
+			
+			if(PhzLib.check_peng(cards, cur_card)) return idex+"_5_1";//偎
+			
+			if(otherHandleFlag == 6) return otherHandleFlagStr+"_3";//别人碰
+			
+			if(PhzLib.check_chi(cards, cur_card)) return idex+"_7_1";//自己吃
+			
+			if(otherHandleFlag == 7) return idex+"_2";//别人吃
+			
+			members.get(i).setHandleFlag(otherHandleFlag);//自动过牌，下家摸牌
+			
+			this.putCardOffset++;
+			
+			return otherHandleFlagStr;
+		}
 		return null;
 	}
 	
@@ -159,8 +191,8 @@ public class PhzGameRound {
 				String handle = checkOtherCard(idex, cur_card);
 				String hs[] = handle.split("\\_");
 				int i = Integer.parseInt(hs[0]), handleFlag = Integer.parseInt(hs[1]);
-				members.get(i).setHandleFlag(handleFlag);
-				return handle;
+				members.get(i).setHandleFlag(handleFlag);//设置下家操作状态
+				return handle + "_2";
 			}
 		}
 		return null;
@@ -179,7 +211,7 @@ public class PhzGameRound {
 			GameRoomMember other = members.get(s);
 			char[] cards = other.getCards();
 			
-			if(i == 1 && PhzLib.check_hu(cards, cur_card)) return s+"_3";
+			if(i == 1 && PhzLib.check_hu(cards, cur_card, minHuxi)) return s+"_3";
 			
 			if(i == 2 && PhzLib.check_gang(cards, cur_card)) return s+"_4";
 			
